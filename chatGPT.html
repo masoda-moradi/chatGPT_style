@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ChatGPT</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #212121;
+            color: white;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #171717;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .new-chat {
+            background: #2f2f2f;
+            border: 1px solid #444;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+
+        .new-chat:hover {
+            background: #3a3a3a;
+        }
+
+        .sidebar-title {
+            color: #aaa;
+            font-size: 13px;
+            margin: 10px 5px;
+        }
+
+        /* Main */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            border-bottom: 1px solid #333;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Chat */
+        .chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px 20px 130px;
+        }
+
+        .welcome {
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        .welcome h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .welcome p {
+            color: #aaa;
+            font-size: 16px;
+        }
+
+        .message {
+            max-width: 800px;
+            margin: 20px auto;
+            display: flex;
+            gap: 15px;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .user-message {
+            justify-content: flex-start;
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+        .icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+
+        .user-icon {
+            background: #10a37f;
+        }
+
+        .bot-icon {
+            background: #444;
+        }
+
+        .text {
+            background: #2f2f2f;
+            padding: 10px 15px;
+            border-radius: 10px;
+            white-space: pre-wrap;
+        }
+
+        /* Input */
+        .input-area {
+            position: fixed;
+            bottom: 0;
+            left: 260px;
+            right: 0;
+            background: #212121;
+            padding: 20px;
+        }
+
+        .input-box {
+            max-width: 800px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            background: #2f2f2f;
+            border: 1px solid #555;
+            border-radius: 15px;
+            padding: 8px 10px;
+        }
+
+        .input-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 16px;
+            padding: 10px;
+            direction: rtl;
+        }
+
+        .input-box input::placeholder {
+            color: #999;
+        }
+
+        .send-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            background: #10a37f;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .send-button:hover {
+            background: #0d8f70;
+        }
+
+        /* Mobile */
+        @media (max-width: 700px) {
+
+            .sidebar {
+                width: 65px;
+                padding: 10px;
+            }
+
+            .new-chat {
+                font-size: 0;
+                padding: 12px 5px;
+            }
+
+            .new-chat::after {
+                content: "+";
+                font-size: 22px;
+            }
+
+            .sidebar-title {
+                display: none;
+            }
+
+            .input-area {
+                left: 65px;
+            }
+
+            .header {
+                padding: 0 15px;
+            }
+
+            .chat {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .message {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+        <button class="new-chat" onclick="newChat()">
+            + چت جدید
+        </button>
+
+        <div class="sidebar-title">
+            چت‌ها
+        </div>
+
+    </div>
+
+
+    <!-- Main -->
+    <div class="main">
+
+        <!-- Header -->
+        <div class="header">
+            ChatGPT
+        </div>
+
+
+        <!-- Chat Area -->
+        <div class="chat" id="chat">
+
+            <div class="welcome" id="welcome">
+                <h1>ChatGPT</h1>
+                <p>چطور می‌توانم به شما کمک کنم؟</p>
+            </div>
+
+        </div>
+
+
+        <!-- Input -->
+        <div class="input-area">
+
+            <div class="input-box">
+
+                <input
+                    type="text"
+                    id="messageInput"
+                    placeholder="پیام خود را بنویسید..."
+                    onkeydown="checkEnter(event)"
+                >
+
+                <button class="send-button" onclick="sendMessage()">
+                    ↑
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        function sendMessage() {
+
+            let input = document.getElementById("messageInput");
+            let message = input.value.trim();
+
+            if (message === "") {
+                return;
+            }
+
+            let welcome = document.getElementById("welcome");
+
+            if (welcome) {
+                welcome.remove();
+            }
+
+            addMessage(message, "user");
+
+            input.value = "";
+
+            setTimeout(function() {
+
+                let answer = getAnswer(message);
+
+                addMessage(answer, "bot");
+
+            }, 500);
+        }
+
+
+        function addMessage(message, type) {
+
+            let chat = document.getElementById("chat");
+
+            let messageDiv = document.createElement("div");
+            messageDiv.className = "message " + type + "-message";
+
+            let icon = document.createElement("div");
+            icon.className = "icon " +
+                (type === "user" ? "user-icon" : "bot-icon");
+
+            icon.innerText = type === "user" ? "من" : "AI";
+
+            let text = document.createElement("div");
+            text.className = "text";
+            text.innerText = message;
+
+            messageDiv.appendChild(icon);
+            messageDiv.appendChild(text);
+
+            chat.appendChild(messageDiv);
+
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+
+        function getAnswer(message) {
+
+            let text = message.toLowerCase();
+
+
+            /* سلام */
+
+            if (
+                text.includes("سلام") ||
+                text.includes("hello") ||
+                text.includes("hi")
+            ) {
+                return "سلام! خوش آمدید \nچطور می‌توانم به شما کمک کنم؟";
+            }
+
+
+            /* حال */
+
+            if (
+                text.includes("حالت چطوره") ||
+                text.includes("خوبی") ||
+                text.includes("چطوری")
+            ) {
+                return "تشکر، خوب هستم \nشما چطور هستید؟";
+            }
+
+
+            /* HTML */
+
+            if (text.includes("html")) {
+                return "HTML زبان نشانه‌گذاری برای ساختار صفحات وب است. با HTML می‌توانیم عنوان، متن، تصویر، دکمه و بخش‌های مختلف یک صفحه وب را ایجاد کنیم.";
+            }
+
+
+            /* CSS */
+
+            if (text.includes("css")) {
+                return "CSS برای طراحی و زیباسازی صفحات وب استفاده می‌شود. با CSS می‌توانیم رنگ، اندازه، فاصله، فونت و شکل عناصر صفحه را تغییر بدهیم.";
+            }
+
+
+            /* JavaScript */
+
+            if (
+                text.includes("javascript") ||
+                text.includes("جاوا اسکریپت")
+            ) {
+                return "JavaScript یک زبان برنامه‌نویسی است که باعث می‌شود صفحات وب تعاملی و پویا باشند؛ مثلاً دکمه‌ها، فرم‌ها و چت‌ها را می‌توان با آن فعال کرد.";
+            }
+
+
+            /* Python */
+
+            if (
+                text.includes("python") ||
+                text.includes("پایتون")
+            ) {
+                return "پایتون یک زبان برنامه‌نویسی ساده و قدرتمند است و در زمینه‌هایی مثل وب، هوش مصنوعی، تحلیل داده و اتوماسیون استفاده می‌شود.";
+            }
+
+
+            /* ChatGPT */
+
+            if (
+                text.includes("chatgpt") ||
+                text.includes("چت جی پی تی") ||
+                text.includes("چت‌جی‌پی‌تی")
+            ) {
+                return "ChatGPT یک دستیار هوش مصنوعی است که می‌تواند به پرسش‌ها پاسخ بدهد، متن بنویسد، توضیح بدهد و در یادگیری و برنامه‌نویسی کمک کند.";
+            }
+
+
+            /* تشکر */
+
+            if (
+                text.includes("تشکر") ||
+                text.includes("ممنون") ||
+                text.includes("مرسی")
+            ) {
+                return "خواهش می‌کنم  خوشحالم که توانستم کمک کنم.";
+            }
+
+
+            /* خداحافظی */
+
+            if (
+                text.includes("خداحافظ") ||
+                text.includes("خدا حافظ") ||
+                text.includes("bye")
+            ) {
+                return "خداحافظ  موفق باشید!";
+            }
+
+
+            /* جواب پیش‌فرض */
+
+            return "پیام شما را دریافت کردم.\nدر این نسخه، پاسخ‌ها به صورت آفلاین تنظیم شده‌اند و هنوز به یک هوش مصنوعی واقعی متصل نیستم.\n\nاگر درباره HTML، CSS، JavaScript یا Python سؤال دارید، می‌توانم در همین موضوعات پاسخ بدهم.";
+        }
+
+
+        /* Enter */
+
+        function checkEnter(event) {
+
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+
+        }
+
+
+        /* New Chat */
+
+        function newChat() {
+
+            let chat = document.getElementById("chat");
+
+            chat.innerHTML = `
+                <div class="welcome" id="welcome">
+                    <h1>ChatGPT</h1>
+                    <p>چطور می‌توانم به شما کمک کنم؟</p>
+                </div>
+            `;
+
+        }
+
+    </script>
+
+</body>
+</html>
